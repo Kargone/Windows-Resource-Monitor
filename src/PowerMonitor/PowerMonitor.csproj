@@ -6,6 +6,9 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWPF>true</UseWPF>
+    <!-- Smart App Control blocks the unsigned apphost .exe on this machine (Win32 4551).
+         Suppress it so the app runs through the Microsoft-signed `dotnet` host instead. -->
+    <UseAppHost>false</UseAppHost>
     <ApplicationManifest>app.manifest</ApplicationManifest>
     <AssemblyName>PowerMonitor</AssemblyName>
     <RootNamespace>PowerMonitor</RootNamespace>

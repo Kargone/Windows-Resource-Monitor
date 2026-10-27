@@ -109,12 +109,24 @@ public partial class MainWindow : Window
     {
         try
         {
-            var psi = new ProcessStartInfo
+            string? processPath = Environment.ProcessPath;
+            bool viaExe = processPath is not null &&
+                          System.IO.Path.GetFileName(processPath).Equals("PowerMonitor.exe", StringComparison.OrdinalIgnoreCase);
+
+            var psi = new ProcessStartInfo { UseShellExecute = true, Verb = "runas" };
+            if (viaExe)
             {
-                FileName = Environment.ProcessPath,
-                UseShellExecute = true,
-                Verb = "runas",
-            };
+                psi.FileName = processPath!;
+            }
+            else
+            {
+                // Launched through the .NET host (e.g. `dotnet PowerMonitor.dll`): relaunch the
+                // host elevated and pass the managed dll back as its argument.
+                psi.FileName = processPath ?? "dotnet";
+                string dll = System.Reflection.Assembly.GetEntryAssembly()?.Location ?? "";
+                psi.Arguments = $"\"{dll}\"";
+            }
+
             Process.Start(psi);
             _reallyClosing = true;
             Application.Current.Shutdown();

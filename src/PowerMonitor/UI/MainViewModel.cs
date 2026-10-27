@@ -55,7 +55,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _otherWattsText = "—";
     private string _totalWattsText = "—";
     private double _cpuBar, _gpuBar, _otherBar;
-    private Visibility _breakdownTotalVisibility = Visibility.Collapsed;
+    private Visibility _otherVisibility = Visibility.Collapsed;
+    private string _totalLabel = "Total power draw";
 
     private string _statusText = "";
     private Visibility _elevateVisibility = Visibility.Collapsed;
@@ -76,7 +77,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public double CpuBar { get => _cpuBar; set => Set(ref _cpuBar, value); }
     public double GpuBar { get => _gpuBar; set => Set(ref _gpuBar, value); }
     public double OtherBar { get => _otherBar; set => Set(ref _otherBar, value); }
-    public Visibility BreakdownTotalVisibility { get => _breakdownTotalVisibility; set => Set(ref _breakdownTotalVisibility, value); }
+    public Visibility OtherVisibility { get => _otherVisibility; set => Set(ref _otherVisibility, value); }
+    public string TotalLabel { get => _totalLabel; set => Set(ref _totalLabel, value); }
 
     public string StatusText { get => _statusText; set => Set(ref _statusText, value); }
     public Visibility ElevateVisibility { get => _elevateVisibility; set => Set(ref _elevateVisibility, value); }
@@ -146,11 +148,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         GpuWattsText = Watts(c.GpuWatts);
 
         bool hasTotal = c.TotalWatts is not null;
-        BreakdownTotalVisibility = hasTotal ? Visibility.Visible : Visibility.Collapsed;
+        OtherVisibility = hasTotal ? Visibility.Visible : Visibility.Collapsed;
 
         if (hasTotal)
         {
+            // On battery: the discharge rate is the true total system draw.
             double total = Math.Max(c.TotalWatts!.Value, 0.1);
+            TotalLabel = "Total power draw";
             TotalWattsText = Watts(c.TotalWatts);
             OtherWattsText = Watts(c.OtherWatts);
             CpuBar = Clamp01((c.CpuWatts ?? 0) / total);
@@ -159,9 +163,13 @@ public sealed class MainViewModel : INotifyPropertyChanged
         }
         else
         {
-            // On AC: no battery total to apportion. Scale CPU vs GPU against their own sum.
-            double reference = Math.Max((c.CpuWatts ?? 0) + (c.GpuWatts ?? 0), 0.1);
-            TotalWattsText = "—";
+            // On AC: the system's true total draw isn't sensor-measurable (the charger feeds the
+            // system and the battery at once), so show the CPU+GPU measured sum instead.
+            bool anyMeasured = c.CpuWatts is not null || c.GpuWatts is not null;
+            double sum = (c.CpuWatts ?? 0) + (c.GpuWatts ?? 0);
+            double reference = Math.Max(sum, 0.1);
+            TotalLabel = "CPU + GPU (plugged in)";
+            TotalWattsText = anyMeasured ? Watts(sum) : "—";
             OtherWattsText = "—";
             CpuBar = Clamp01((c.CpuWatts ?? 0) / reference);
             GpuBar = Clamp01((c.GpuWatts ?? 0) / reference);
