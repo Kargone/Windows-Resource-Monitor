@@ -120,39 +120,44 @@
 
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="130" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="70" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="CPU" VerticalAlignment="Center" />
                     <ProgressBar Grid.Column="1" Style="{StaticResource Bar}" Value="{Binding CpuBar}"
-                                 Foreground="#4C9AFF" VerticalAlignment="Center" Margin="4,0" />
+                                 Foreground="#4C9AFF" VerticalAlignment="Center" Margin="8,0,4,0" />
                     <TextBlock Grid.Column="2" Text="{Binding CpuWattsText}" TextAlignment="Right"
                                FontWeight="SemiBold" VerticalAlignment="Center" />
                 </Grid>
 
                 <Grid Margin="0,0,0,10">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="130" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="70" />
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="GPU" VerticalAlignment="Center" />
                     <ProgressBar Grid.Column="1" Style="{StaticResource Bar}" Value="{Binding GpuBar}"
-                                 Foreground="#2ECC71" VerticalAlignment="Center" Margin="4,0" />
+                                 Foreground="#2ECC71" VerticalAlignment="Center" Margin="8,0,4,0" />
                     <TextBlock Grid.Column="2" Text="{Binding GpuWattsText}" TextAlignment="Right"
                                FontWeight="SemiBold" VerticalAlignment="Center" />
                 </Grid>
 
-                <Grid Visibility="{Binding OtherVisibility}">
+                <Grid Opacity="{Binding OtherRowOpacity}">
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="70" />
+                        <ColumnDefinition Width="130" />
                         <ColumnDefinition Width="*" />
                         <ColumnDefinition Width="70" />
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="Other" VerticalAlignment="Center" Foreground="#C0C4C9" />
-                    <ProgressBar Grid.Column="1" Style="{StaticResource Bar}" Value="{Binding OtherBar}"
-                                 Foreground="#9AA0A6" VerticalAlignment="Center" Margin="4,0" />
+                    <TextBlock Grid.Column="0" Text="{Binding OtherLabel}" VerticalAlignment="Center"
+                               Foreground="#C0C4C9" TextTrimming="CharacterEllipsis" />
+                    <Grid Grid.Column="1" Margin="8,0,4,0" VerticalAlignment="Center">
+                        <ProgressBar Style="{StaticResource Bar}" Value="{Binding OtherBar}" Foreground="#9AA0A6" />
+                        <TextBlock Text="{Binding OtherNote}" FontSize="10" FontStyle="Italic"
+                                   Foreground="#9AA0A6" VerticalAlignment="Center"
+                                   HorizontalAlignment="Left" Margin="2,0,0,0" />
+                    </Grid>
                     <TextBlock Grid.Column="2" Text="{Binding OtherWattsText}" TextAlignment="Right"
                                FontWeight="SemiBold" VerticalAlignment="Center" />
                 </Grid>

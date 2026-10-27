@@ -55,7 +55,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     private string _otherWattsText = "—";
     private string _totalWattsText = "—";
     private double _cpuBar, _gpuBar, _otherBar;
-    private Visibility _otherVisibility = Visibility.Collapsed;
+    private double _otherRowOpacity = 1.0;
+    private string _otherLabel = "Screen, RAM & rest";
+    private string _otherNote = "";
     private string _totalLabel = "Total power draw";
 
     private string _statusText = "";
@@ -77,7 +79,9 @@ public sealed class MainViewModel : INotifyPropertyChanged
     public double CpuBar { get => _cpuBar; set => Set(ref _cpuBar, value); }
     public double GpuBar { get => _gpuBar; set => Set(ref _gpuBar, value); }
     public double OtherBar { get => _otherBar; set => Set(ref _otherBar, value); }
-    public Visibility OtherVisibility { get => _otherVisibility; set => Set(ref _otherVisibility, value); }
+    public double OtherRowOpacity { get => _otherRowOpacity; set => Set(ref _otherRowOpacity, value); }
+    public string OtherLabel { get => _otherLabel; set => Set(ref _otherLabel, value); }
+    public string OtherNote { get => _otherNote; set => Set(ref _otherNote, value); }
     public string TotalLabel { get => _totalLabel; set => Set(ref _totalLabel, value); }
 
     public string StatusText { get => _statusText; set => Set(ref _statusText, value); }
@@ -148,7 +152,6 @@ public sealed class MainViewModel : INotifyPropertyChanged
         GpuWattsText = Watts(c.GpuWatts);
 
         bool hasTotal = c.TotalWatts is not null;
-        OtherVisibility = hasTotal ? Visibility.Visible : Visibility.Collapsed;
 
         if (hasTotal)
         {
@@ -157,6 +160,8 @@ public sealed class MainViewModel : INotifyPropertyChanged
             TotalLabel = "Total power draw";
             TotalWattsText = Watts(c.TotalWatts);
             OtherWattsText = Watts(c.OtherWatts);
+            OtherNote = "";
+            OtherRowOpacity = 1.0;
             CpuBar = Clamp01((c.CpuWatts ?? 0) / total);
             GpuBar = Clamp01((c.GpuWatts ?? 0) / total);
             OtherBar = Clamp01((c.OtherWatts ?? 0) / total);
@@ -164,13 +169,16 @@ public sealed class MainViewModel : INotifyPropertyChanged
         else
         {
             // On AC: the system's true total draw isn't sensor-measurable (the charger feeds the
-            // system and the battery at once), so show the CPU+GPU measured sum instead.
+            // system and the battery at once), so show the CPU+GPU measured sum, and keep the
+            // "rest of system" row present but greyed out with a note instead of hiding it.
             bool anyMeasured = c.CpuWatts is not null || c.GpuWatts is not null;
             double sum = (c.CpuWatts ?? 0) + (c.GpuWatts ?? 0);
             double reference = Math.Max(sum, 0.1);
             TotalLabel = "CPU + GPU (plugged in)";
             TotalWattsText = anyMeasured ? Watts(sum) : "—";
             OtherWattsText = "—";
+            OtherNote = "not measurable while plugged in";
+            OtherRowOpacity = 0.5;
             CpuBar = Clamp01((c.CpuWatts ?? 0) / reference);
             GpuBar = Clamp01((c.GpuWatts ?? 0) / reference);
             OtherBar = 0;
